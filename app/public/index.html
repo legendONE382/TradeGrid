@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradeGrid</title>
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: 0 auto; padding: 1rem; }
+    .card { border: 1px solid #ddd; padding: .75rem; margin-bottom: .75rem; border-radius: 8px; }
+    input, button, select { width: 100%; padding: .5rem; margin-top: .35rem; }
+  </style>
+</head>
+<body>
+  <h1>TradeGrid</h1>
+  <p>Offline-first local market helper.</p>
+
+  <div class="card">
+    <h3>Post produce</h3>
+    <input id="sellerId" placeholder="Seller ID" />
+    <input id="title" placeholder="Product name" />
+    <input id="category" placeholder="Category" />
+    <input id="quantity" placeholder="Quantity" type="number" />
+    <input id="unit" placeholder="Unit (kg, bag, crate)" />
+    <input id="price" placeholder="Price" type="number" />
+    <input id="town" placeholder="Town" />
+    <button onclick="saveListing()">Save listing</button>
+    <small id="saveState"></small>
+  </div>
+
+  <div class="card">
+    <h3>Nearby products</h3>
+    <input id="searchTown" placeholder="Filter by town" />
+    <button onclick="loadListings()">Load</button>
+    <div id="listings"></div>
+  </div>
+
+<script src="/app.js"></script>
+</body>
+</html>
