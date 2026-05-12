@@ -1,66 +1,15 @@
-const offlineQueueKey = 'tradegrid_offline_queue';
-
-function getQueue() {
-  return JSON.parse(localStorage.getItem(offlineQueueKey) || '[]');
-}
-function setQueue(items) {
-  localStorage.setItem(offlineQueueKey, JSON.stringify(items));
-}
-
-async function api(url, payload) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
-async function saveListing() {
-  const payload = {
-    seller_id: Number(document.getElementById('sellerId').value),
-    title: document.getElementById('title').value,
-    category: document.getElementById('category').value,
-    quantity: Number(document.getElementById('quantity').value),
-    unit: document.getElementById('unit').value,
-    price: Number(document.getElementById('price').value),
-    town: document.getElementById('town').value
-  };
-  const saveState = document.getElementById('saveState');
-  try {
-    await api('/api/listings', payload);
-    saveState.textContent = 'Listing synced.';
-  } catch {
-    const queue = getQueue();
-    queue.push({ type: 'create_listing', payload });
-    setQueue(queue);
-    saveState.textContent = 'No network. Listing saved offline.';
-  }
-}
-
-async function syncQueue() {
-  const queue = getQueue();
-  if (!queue.length) return;
-  const remaining = [];
-  for (const item of queue) {
-    try {
-      if (item.type === 'create_listing') await api('/api/listings', item.payload);
-    } catch {
-      remaining.push(item);
-    }
-  }
-  setQueue(remaining);
-}
-
-async function loadListings() {
-  const town = document.getElementById('searchTown').value;
-  const res = await fetch('/api/listings?town=' + encodeURIComponent(town));
-  const data = await res.json();
-  const container = document.getElementById('listings');
-  container.innerHTML = data.map(item => `<div class="card"><strong>${item.title}</strong><br/>₦${item.price} / ${item.unit}<br/>Seller: ${item.seller_name} (${item.phone})</div>`).join('');
-}
-
-window.addEventListener('online', syncQueue);
-syncQueue();
-loadListings();
+const qk='tradegrid_offline_queue';const $=id=>document.getElementById(id);
+const getQ=()=>JSON.parse(localStorage.getItem(qk)||'[]');const setQ=v=>localStorage.setItem(qk,JSON.stringify(v));
+const post=(u,p)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).then(async r=>{if(!r.ok)throw new Error(await r.text());return r.json();});
+function tab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));$(id).classList.add('active')}
+async function saveListing(){const p={seller_id:Number($('sellerId').value),title:$('title').value,category:$('category').value,quantity:Number($('quantity').value),unit:$('unit').value,price:Number($('price').value),town:$('town').value};try{await post('/api/listings',p);$('saveState').textContent='Synced';}catch{const q=getQ();q.push({t:'listing',p});setQ(q);$('saveState').textContent='Saved offline';}}
+async function syncQ(){const q=getQ(),r=[];for(const i of q){try{if(i.t==='listing')await post('/api/listings',i.p);if(i.t==='order')await post('/api/orders',i.p);if(i.t==='msg')await post('/api/messages',i.p);}catch{r.push(i)}}setQ(r)}
+async function loadListings(){const town=$('searchTown').value;const d=await fetch('/api/listings?town='+encodeURIComponent(town)).then(r=>r.json());$('listings').innerHTML=d.map(i=>`<div class='card'><b>${i.title}</b> ₦${i.price}/${i.unit}<br/>${i.seller_name} ${i.phone}</div>`).join('')}
+async function requestOrder(){const p={listing_id:Number($('orderListing').value),buyer_id:Number($('buyerId').value),quantity:Number($('orderQty').value),note:$('orderNote').value,fulfillment_type:$('fulfillment').value};try{const r=await post('/api/orders',p);$('orderState').textContent='Order #'+r.id;}catch{const q=getQ();q.push({t:'order',p});setQ(q);$('orderState').textContent='Saved offline';}}
+async function createLedger(){const p={order_id:Number($('ledgerOrder').value)||null,seller_id:Number($('ledgerSeller').value),buyer_id:Number($('ledgerBuyer').value),total_amount:Number($('ledgerTotal').value),amount_paid:Number($('ledgerPaid').value||0),due_date:$('ledgerDue').value};const r=await post('/api/ledger',p);$('ledgerState').textContent='Ledger #'+r.id+' '+r.status}
+async function openDelivery(){await post('/api/deliveries',{order_id:Number($('dOrder').value),fee:Number($('dFee').value||0)});loadOpenDeliveries()}
+async function loadOpenDeliveries(){const d=await fetch('/api/deliveries/open').then(r=>r.json());$('deliveryJobs').innerHTML=d.map(j=>`<div class='card'>Job #${j.id} Order ${j.order_id} Fee ₦${j.fee}</div>`).join('')}
+async function sendMessage(){const p={from_user_id:Number($('mFrom').value),to_user_id:Number($('mTo').value),body:$('mBody').value};try{await post('/api/messages',p);}catch{const q=getQ();q.push({t:'msg',p});setQ(q);}}
+async function addPrice(){await post('/api/prices',{commodity:$('pCommodity').value,unit:$('pUnit').value,min_price:Number($('pMin').value),max_price:Number($('pMax').value),town:$('pTown').value});loadPrices()}
+async function loadPrices(){const d=await fetch('/api/prices').then(r=>r.json());$('pricesList').innerHTML=d.map(p=>`<div class='card'>${p.commodity} ${p.unit}: ₦${p.min_price}-₦${p.max_price} (${p.town||'all'})</div>`).join('')}
+window.addEventListener('online',syncQ);syncQ();loadListings();

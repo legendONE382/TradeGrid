@@ -3,6 +3,7 @@
 TradeGrid is an offline-first marketplace and logistics app for rural and semi-rural commerce.
 
 ## What is implemented now
+Main app features now include role registration, listings, orders, debts, delivery jobs, chat messages, and price board modules.
 This repository now includes a runnable MVP web app + backend API with:
 - Seller registration
 - Product listing
