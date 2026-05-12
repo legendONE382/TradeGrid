@@ -1,41 +1,37 @@
-# Rural Trade Network App (TradeGrid)
+# TradeGrid — Rural Trade Network App
 
-Offline-first local commerce system for rural and semi-rural communities.
+TradeGrid is an offline-first marketplace and logistics app for rural and semi-rural commerce.
 
-## V1 Scope
+## What is implemented now
+This repository now includes a runnable MVP web app + backend API with:
 - Seller registration
-- Product listing (offline-first sync)
-- Local browsing
-- Order request flow
-- Debt tracking (ledger)
-- Simple admin moderation panel
+- Product listing
+- Local browsing/filter by town
+- Order requests
+- Debt ledger entries
+- Simple admin moderation for listings
+- Offline-first listing queue in the client (stores pending listings in localStorage and retries on reconnect)
 
-## Architecture (MVP)
-- **Mobile app**: Android-first (React Native)
-- **Local storage**: SQLite for offline persistence
-- **Sync engine**: pull/push queue with conflict resolution by `updatedAt`
-- **Backend API**: Node.js + Express + PostgreSQL
-- **Realtime-lite**: polling + lightweight notifications
+## Run locally
+```bash
+cd app
+npm install
+npm start
+```
+Then open `http://localhost:3000`.
 
-## User Roles
-- Seller
-- Buyer
-- Transporter
-- Admin
+## Structure
+- `app/src/server.js` Express API + static hosting
+- `app/src/db.js` SQLite schema initialization
+- `app/public/index.html` lightweight rural-first UI
+- `app/public/app.js` client logic and offline queue sync
+- `schema/mvp.sql` original relational SQL reference
+- `api-spec/openapi.yaml` draft contract
 
-## Core Domain Models
-- User
-- Listing
-- Order
-- LedgerEntry
-- DeliveryJob
-- PriceReport
-- Message
-
-## Repository Structure
-- `docs/` product and technical docs
-- `schema/` initial SQL schema for MVP
-- `api-spec/` OpenAPI draft for core endpoints
-
-## Next Step
-Use this baseline to scaffold mobile + API services and implement the V1 flows.
+## Next build steps
+- Add role-based auth
+- Transporter delivery jobs
+- Local language packs
+- Price board feed
+- Data compression for photos
+- Android packaging (PWA/TWA or React Native)
