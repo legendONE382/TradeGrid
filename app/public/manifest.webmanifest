@@ -1,0 +1,9 @@
+{
+  "name": "TradeGrid Rural Trade Network",
+  "short_name": "TradeGrid",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1b5e20",
+  "icons": []
+}
